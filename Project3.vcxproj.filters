@@ -23,13 +23,22 @@
     <ClInclude Include="Shader_format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.vs" />
     <None Include="shader.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="wall.jpg">
+    <Image Include="image-resources\container.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="image-resources\wall.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="image-resources\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
