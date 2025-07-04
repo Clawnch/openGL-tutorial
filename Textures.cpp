@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "Shader_format.h"
 
-int wWidth = 640, wHeight = 480;
+int wWidth = 800, wHeight = 600;
 float opacity = 0.2f;
 const char* title = "OpenGL Tests";
 
@@ -68,7 +71,7 @@ int main(void) {
 		0, 1, 3,
 		1, 2, 3
 	};
-	
+
 
 	//setting up vertex data buffers, Vertex Buffer Object
 	//Vertex Array Object
@@ -159,6 +162,16 @@ int main(void) {
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 	ourShader.setInt("texture2", 1);
 
+	//Translate tutorial
+	//glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+	//glm::mat4 trans = glm::mat4(1.0f);
+	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+	//trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+	unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+	//glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+
 
 	while (!glfwWindowShouldClose(window)) {
 		//input would be here, but glfwSetKeyCallback was used, so no calling 
@@ -173,6 +186,12 @@ int main(void) {
 		//float xOffset = (sin(timeValue) / 2.0f);
 		//float yOffset = (cos(timeValue) / 2.0f);
 
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
+		
+		
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureId1);
 		glActiveTexture(GL_TEXTURE1);
@@ -182,9 +201,19 @@ int main(void) {
 		//If a uniform is used
 		//ourShader.setFloat("someUniform", 1.0f);
 		ourShader.setFloat("opacity", opacity);
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 		
 		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+		float scale = abs(sin(glfwGetTime() + 1));
+		trans = glm::scale(trans, glm::vec3(scale, scale, 0.0f));
+
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		//Example that uses mutiple points in the vertices array
