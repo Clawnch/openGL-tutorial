@@ -140,7 +140,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="Shader_format.h" />
   </ItemGroup>
   <ItemGroup>
