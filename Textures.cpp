@@ -12,11 +12,13 @@
 #include "Shader_format.h"
 
 int wWidth = 800, wHeight = 600;
-float opacity = 0.2f;
+float opacity = 0.2f, viewDepth = -7.0f, horizontalAngle = 0.0f, verticalAngle = 0.0f;
+float rotationDegrees = 10.0f;
 const char* title = "OpenGL Tests";
+glm::mat4 view;
 
 static void adjustOpacity(float adjust) {
-	if (opacity > 0.0f && adjust < 0) {
+	if (opacity > -0.2f && adjust < 0) {
 		opacity += adjust;
 	}
 	if (opacity < 1.0f && adjust > 0) {
@@ -24,16 +26,53 @@ static void adjustOpacity(float adjust) {
 	}
 }
 
+/*		Y
+	X---|/
+	   /|
+	  Z
+	 vec3(x, y, z)
+	 */
+
+// glm::rotate vector directs it to rotate around an axis, vec3(0, 1, 0) would rotate around the y axis on the x/z plane
+
+static void rotateAroundOrigin(float horizontalAngleChange) {
+	horizontalAngle += horizontalAngleChange;
+	if (horizontalAngle >= 360) horizontalAngle -= 360;
+	if (horizontalAngle < 0) horizontalAngle += 360;
+
+	float xPos = sin(glm::radians(horizontalAngle)) * viewDepth;
+	float zPos = cos(glm::radians(horizontalAngle)) * viewDepth;
+	float angleToOrigin = -atan2(-xPos, -zPos);
+	view = glm::mat4(1.0f);
+	view = glm::rotate(view, angleToOrigin, glm::vec3(0.0f, 1.0f, 0.0f));
+	view = glm::translate(view, glm::vec3(xPos, 0.0f, zPos));
+}
+
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS) {
 		adjustOpacity(0.1f);
 	}
-	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_MINUS && action == GLFW_PRESS) {
 		adjustOpacity(-0.1f);
+	}
+	if ((key == GLFW_KEY_W || key == GLFW_KEY_UP) && action == GLFW_PRESS) {
+		//view = glm::translate(view, glm::vec3(0.0f, -0.1f, 0.0f));
+		//view = glm::rotate(view, glm::radians(10.0f), glm::vec3(0.5f, 0.0f, 0.0f));
+	}
+	if ((key == GLFW_KEY_S || key == GLFW_KEY_DOWN) && action == GLFW_PRESS) {
+
+		//view = glm::translate(view, glm::vec3(0.0f, 0.1f, 0.0f));
+	}
+	if ((key == GLFW_KEY_A || key == GLFW_KEY_LEFT) && action == GLFW_PRESS) {
+		rotateAroundOrigin(10);
+
+	}
+	if ((key == GLFW_KEY_D || key == GLFW_KEY_RIGHT) && action == GLFW_PRESS) {
+		rotateAroundOrigin(-10);
 	}
 }
 
@@ -228,11 +267,11 @@ int main(void) {
 	//trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 
 	//glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, viewDepth));
 	glm::mat4 projection = glm::mat4(1.0f);
 
 	//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 	projection = glm::perspective(glm::radians(45.0f), ((float)wWidth / (float)wHeight), 0.1f, 100.0f);
 
 
@@ -243,6 +282,12 @@ int main(void) {
 	//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+	float xPos = sin(glm::radians(horizontalAngle)) * abs(viewDepth);
+	float zPos = cos(glm::radians(horizontalAngle)) * abs(viewDepth);
+	float angleToOrigin = -atan2(-xPos, -zPos);
+	std::cout << xPos << " : " << zPos << " : " << angleToOrigin << std::endl;
 
 
 
@@ -265,8 +310,8 @@ int main(void) {
 		glBindTexture(GL_TEXTURE_2D, textureId1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textureId2);
-		view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -15.0f));
+		//view = glm::mat4(1.0f);
+		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
 		//view = glm::rotate(view, (float)glfwGetTime(), glm::vec3(0.1f, 0.1f, 0.0f));
 		ourShader.setMat4("view", view);
 
